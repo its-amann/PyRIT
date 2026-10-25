@@ -4,6 +4,7 @@
 import ast
 import asyncio
 import logging
+from collections.abc import Callable
 from pathlib import Path
 from typing import assert_type
 from unittest.mock import AsyncMock, MagicMock, patch
@@ -16,6 +17,8 @@ from pyrit.prompt_target import PromptTarget
 from pyrit.prompt_target.common.utils import (
     build_empty_truncated_response,
     limit_requests_per_minute,
+    validate_frequency_penalty,
+    validate_presence_penalty,
     validate_temperature,
     validate_top_p,
     warn_truncated_response,
@@ -86,6 +89,26 @@ def test_validate_top_p_below_zero_raises():
 def test_validate_top_p_above_one_raises():
     with pytest.raises(PyritException, match="top_p must be between 0 and 1"):
         validate_top_p(1.1)
+
+
+@pytest.mark.parametrize("validator", [validate_presence_penalty, validate_frequency_penalty])
+@pytest.mark.parametrize("value", [None, -2.0, -0.5, 0.0, 0.5, 2.0])
+def test_valid_generation_penalties(*, validator: Callable[[float | None], None], value: float | None) -> None:
+    assert validator(value) is None
+
+
+@pytest.mark.parametrize(
+    ("validator", "parameter"),
+    [(validate_presence_penalty, "presence_penalty"), (validate_frequency_penalty, "frequency_penalty")],
+)
+@pytest.mark.parametrize(
+    "value", [-2.1, 2.1, -2.0000000000000004, 2.0000000000000004, float("nan"), float("inf"), -float("inf")]
+)
+def test_invalid_generation_penalties(
+    *, validator: Callable[[float | None], None], parameter: str, value: float
+) -> None:
+    with pytest.raises(PyritException, match=parameter):
+        validator(value)
 
 
 @pytest.mark.parametrize("rpm", [None, 30])

@@ -222,6 +222,37 @@ def test_invalid_temperature_raises(patch_central_database):
         )
 
 
+@pytest.mark.usefixtures("patch_central_database")
+@pytest.mark.parametrize("parameter", ["presence_penalty", "frequency_penalty"])
+@pytest.mark.parametrize(
+    "value", [-2.1, 2.1, -2.0000000000000004, 2.0000000000000004, float("nan"), float("inf"), -float("inf")]
+)
+def test_invalid_generation_penalties_raise(*, parameter: str, value: float) -> None:
+    with pytest.raises(PyritException, match=parameter):
+        OpenAICompletionTarget(
+            model_name="gpt-35-turbo",
+            endpoint="https://mock.azure.com/",
+            api_key="mock-api-key",
+            presence_penalty=value if parameter == "presence_penalty" else None,
+            frequency_penalty=value if parameter == "frequency_penalty" else None,
+        )
+
+
+@pytest.mark.usefixtures("patch_central_database")
+@pytest.mark.parametrize("parameter", ["presence_penalty", "frequency_penalty"])
+@pytest.mark.parametrize("value", [None, -2.0, -0.5, 0.0, 0.5, 2.0])
+def test_valid_generation_penalties_preserve_identifier(*, parameter: str, value: float | None) -> None:
+    target = OpenAICompletionTarget(
+        model_name="gpt-35-turbo",
+        endpoint="https://mock.azure.com/",
+        api_key="mock-api-key",
+        presence_penalty=value if parameter == "presence_penalty" else None,
+        frequency_penalty=value if parameter == "frequency_penalty" else None,
+    )
+
+    assert target.get_identifier().params.get(parameter) == value
+
+
 def test_invalid_top_p_raises(patch_central_database):
     """Test that invalid top_p values raise PyritException, as on the chat target."""
     with pytest.raises(PyritException, match="top_p must be between 0 and 1"):
