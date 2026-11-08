@@ -55,6 +55,19 @@ def test_math_obfuscation_digits_and_letters_in_one_prompt():
     assert result.output_text == "A = 4A - 3A\n1 = 3*1 - 2*1"
 
 
+@pytest.mark.parametrize("ch", ["²", "₂", "½"])
+def test_math_obfuscation_non_decimal_numeric_characters_use_multiplication(ch):
+    converter = MathObfuscationConverter(min_n=2, max_n=9, rng=random.Random(3), hint="", suffix="")
+
+    result = asyncio.run(converter.convert_async(prompt=ch))
+
+    for line in result.output_text.splitlines():
+        pattern = rf"^{re.escape(ch)} = (\d)\*{re.escape(ch)} - (\d)\*{re.escape(ch)}$"
+        match = re.fullmatch(pattern, line)
+        assert match is not None, line
+        assert int(match.group(1)) - int(match.group(2)) == 1
+
+
 def test_math_obfuscation_spaces_and_newlines():
     """Spaces -> blank lines, newlines -> blank lines."""
     rng = random.Random(1)
