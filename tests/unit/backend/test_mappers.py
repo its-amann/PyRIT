@@ -1548,6 +1548,12 @@ class TestBuildFilename:
         result = build_filename(data_type="image_path", sha256="abcdef1234567890", value=url)
         assert result == "image_abcdef123456.jpg"
 
+    def test_uppercase_https_blob_url_extension(self) -> None:
+        url = "HTTPS://acct.blob.core.windows.net/c/image.png?sv=1&sig=x"
+        result = build_filename(data_type="image_path", sha256="abcdef1234567890", value=url)
+        assert result.endswith(".png")
+        assert "sig=" not in result
+
 
 # ============================================================================
 # Target Mapper Tests

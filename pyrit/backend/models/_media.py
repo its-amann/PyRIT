@@ -81,8 +81,8 @@ def build_filename(*, data_type: str, sha256: str | None, value: str | None) -> 
     short_hash = sha256[:12] if sha256 else uuid.uuid4().hex[:12]
 
     ext = ""
-    if value and not value.startswith("data:"):
-        source = urlparse(value).path if value.startswith("http") else value
+    if value and not value.lower().startswith("data:"):
+        source = urlparse(value).path if value.lower().startswith(("http://", "https://")) else value
         ext = Path(source).suffix
 
     if not ext:
