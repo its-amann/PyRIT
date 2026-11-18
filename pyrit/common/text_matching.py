@@ -160,11 +160,12 @@ class ApproximateTextMatching(TextMatching):
             return 0.0
         if not target.strip():
             return 0.0
-        if len(target) < self._n:
-            return 0.0
 
         target_str = target if self._case_sensitive else target.casefold()
         text_str = text if self._case_sensitive else text.casefold()
+
+        if len(target_str) < self._n:
+            return 0.0
 
         target_ngrams = {target_str[i : i + self._n] for i in range(len(target_str) - (self._n - 1))}
 

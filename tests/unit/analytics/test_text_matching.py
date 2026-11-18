@@ -91,6 +91,10 @@ class TestApproximateTextMatching:
         matcher = ApproximateTextMatching(threshold=0.5, n=3, case_sensitive=False)
         assert matcher.get_overlap_score(target="STRASSE", text="Die Straße") == 1.0
 
+    def test_case_insensitive_length_check_uses_folded_target(self):
+        matcher = ApproximateTextMatching(n=2, case_sensitive=False)
+        assert matcher.get_overlap_score(target="ß", text="SS") == 1.0
+
     def test_case_sensitive(self):
         matcher = ApproximateTextMatching(threshold=0.8, n=3, case_sensitive=True)
         assert matcher.is_match(target="HELLO", text="hello world") is False
