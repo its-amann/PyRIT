@@ -130,6 +130,21 @@ def test_capitalization(input_text, expected_output):
     assert result.output_text == expected_output
 
 
+@pytest.mark.parametrize(
+    "input_text,expected_output",
+    [
+        # Accented letters belong to the core, not the leading/trailing punctuation.
+        ("café", "afécay"),
+        ("Über", "Erübay"),
+        ("piñata!", "iñatapay!"),
+    ],
+)
+def test_non_ascii_letters_stay_in_core(input_text, expected_output):
+    converter = PigLatinConverter()
+    result = asyncio.run(converter.convert_async(prompt=input_text))
+    assert result.output_text == expected_output
+
+
 def test_sentence_preserves_structure():
     converter = PigLatinConverter()
     result = asyncio.run(converter.convert_async(prompt="The quick brown fox."))

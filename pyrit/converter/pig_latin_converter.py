@@ -13,8 +13,9 @@ from pyrit.models import ComponentIdentifier
 # Split a whitespace-delimited token into leading non-letters, an alphabetic core
 # (from the first letter to the last letter, interior punctuation included), and
 # trailing non-letters. Leading/trailing punctuation is preserved verbatim so that
-# marks like ``"`` ``(`` ``)`` ``.`` ``,`` stay where they were.
-_TOKEN_PATTERN = re.compile(r"^([^A-Za-z]*)(.*?)([^A-Za-z]*)$")
+# marks like ``"`` ``(`` ``)`` ``.`` ``,`` stay where they were. ``[\W\d_]`` is any
+# non-letter, so accented letters such as the ``é`` in ``café`` stay in the core.
+_TOKEN_PATTERN = re.compile(r"^([\W\d_]*)(.*?)([\W\d_]*)$")
 
 _VOWELS = frozenset("aeiou")
 _VALID_VOWEL_SUFFIXES = ("way", "yay", "ay")
