@@ -25,7 +25,7 @@ function syntheticFinding(index: number, overrides: Partial<FindingListItem> = {
     id: `00000000-0000-4000-8000-${String(index).padStart(12, '0')}`, operation_id: OPERATION.id,
     title: `Synthetic finding ${index}`, severity: 'moderate', field_values: {},
     created_at: '2026-10-21T12:00:00Z', evidence_count: 0, rows: [], retired: [], parent_finding_id: null,
-    demonstrated: true, paths: [], child_count: 0, ...overrides,
+    demonstrated: true, paths: [], child_count: 0, version: 1, ...overrides,
   }
 }
 
